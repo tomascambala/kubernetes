@@ -57,10 +57,14 @@ Check your Docker Hub.
 
 ### Create a Kubernetes Cluster on Amazon EKS with eksctl
 
+See: 
+
+https://docs.aws.amazon.com/eks/latest/userguide/create-cluster.html
+
 use AWS CLI or AWS console 
 
 
- ### Create Kubernetes Components (Configmaps and Secrets)
+ ### Create Kubernetes Components 
 
 - `cd udacity-c3-deployment/k8s`
 
@@ -99,5 +103,4 @@ install:
 ```  
 - Add your environment variables to the project repository in [TravisCL](https://travis-ci.com) by selecting the setting option.
 
-- Commit and Push your changes to trigger a Travis CI build.
-> Travis only runs builds on the commits you push after you’ve added a `.travis.yml` file.
+- Commit and Push your changes to trigger a Travis CI build
