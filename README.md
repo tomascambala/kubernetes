@@ -1,53 +1,103 @@
-# Udagram Image Filtering Microservice
+# Udagram Microservices
+ Udacity Cloud Developer Nanodegree
 
-Udagram is a simple cloud application developed alongside the Udacity Cloud Engineering Nanodegree. It allows users to register and log into a web client, post photos to the feed, and process photos using an image filtering microservice.
+## Getting Started
+Udagram is a simple cloud application developed which allows users to register and log into a web client, post photos to the feed, and process photos using an image filtering microservice.
 
-The project is split into three parts:
-1. [The Simple Frontend](/udacity-c3-frontend)
-A basic Ionic client web application which consumes the RestAPI Backend. 
-2. [The RestAPI Feed Backend](/udacity-c3-restapi-feed), a Node-Express feed microservice.
-3. [The RestAPI User Backend](/udacity-c3-restapi-user), a Node-Express user microservice.
+### Prerequisites
+You need to install:  
+[Docker](https://docs.docker.com/docker-for-windows/install/)  
+[AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/install-linux.html)  
+[Eksctl](https://docs.aws.amazon.com/eks/latest/userguide/getting-started-eksctl.html)  
+[AWS-iam-authenticator](https://docs.aws.amazon.com/eks/latest/userguide/install-aws-iam-authenticator.html)  
+[Kubectl](https://docs.aws.amazon.com/eks/latest/userguide/install-kubectl.html)  
 
-## Getting Setup
+### Installation
+Test that your installation was Successful with the following commands:  
+`docker --version`  
+`aws --version`  
+`eksctl version`  
+`kubectl version --short --client`  
+`aws-iam-authenticator version`  
 
-> _tip_: this frontend is designed to work with the RestAPI backends). It is recommended you stand up the backend first, test using Postman, and then the frontend should integrate.
 
-### Installing Node and NPM
-This project depends on Nodejs and Node Package Manager (NPM). Before continuing, you must download and install Node (NPM is included) from [https://nodejs.com/en/download](https://nodejs.org/en/download/).
+### Setup Environment Variables
 
-### Installing Ionic Cli
-The Ionic Command Line Interface is required to serve and build the frontend. Instructions for installing the CLI can be found in the [Ionic Framework Docs](https://ionicframework.com/docs/installation/cli).
-
-### Installing project dependencies
-
-This project uses NPM to manage software dependencies. NPM Relies on the package.json file located in the root of this repository. After cloning, open your terminal and run:
-```bash
-npm install
+Set up your own values:
 ```
->_tip_: **npm i** is shorthand for **npm install**
-
-### Setup Backend Node Environment
-You'll need to create a new node server. Open a new terminal within the project directory and run:
-1. Initialize a new project: `npm init`
-2. Install express: `npm i express --save`
-3. Install typescript dependencies: `npm i ts-node-dev tslint typescript  @types/bluebird @types/express @types/node --save-dev`
-4. Look at the `package.json` file from the RestAPI repo and copy the `scripts` block into the auto-generated `package.json` in this project. This will allow you to use shorthand commands like `npm run dev`
-
-
-### Configure The Backend Endpoint
-Ionic uses enviornment files located in `./src/enviornments/enviornment.*.ts` to load configuration variables at runtime. By default `environment.ts` is used for development and `enviornment.prod.ts` is used for produciton. The `apiHost` variable should be set to your server url either locally or in the cloud.
-
-***
-### Running the Development Server
-Ionic CLI provides an easy to use development server to run and autoreload the frontend. This allows you to make quick changes and see them in real time in your browser. To run the development server, open terminal and run:
-
-```bash
-ionic serve
+export POSTGRESS_USERNAME=your postgress username;
+export POSTGRESS_PASSWORD=your postgress password;
+export POSTGRESS_DB=your postgress database;
+export POSTGRESS_HOST=your postgress host;
+export AWS_REGION=your aws region;
+export AWS_PROFILE=your aws profile;
+export AWS_BUCKET=your aws bucket name;
+export JWT_SECRET=your jwt secret;
 ```
 
-### Building the Static Frontend Files
-Ionic CLI can build the frontend into static HTML/CSS/JavaScript files. These files can be uploaded to a host to be consumed by users on the web. Build artifacts are located in `./www`. To build from source, open terminal and run:
-```bash
-ionic build
+### Setup Docker Enviroment
+Build the images: 
+`docker-compose -f docker-compose-build.yaml build --parallel`  
+
+List your docker images to check if they have been built:
+`docker images`  
+
+Run your docker containers: 
+`docker-compose up`   
+
+To exit run `control + C`
+
+
+Push your docker images:
+ `docker-compose -f docker-compose-build.yaml push`  
+
+
+Check your Docker Hub.
+
+
+### Create a Kubernetes Cluster on Amazon EKS with eksctl
+
+use AWS CLI or AWS console 
+
+
+ ### Create Kubernetes Components (Configmaps and Secrets)
+
+- `cd udacity-c3-deployment/k8s`
+
+- `kubectl apply -f .`
+
+
+### Check your Pods Status
+
+`kubectl get all`  
+
+
+### CI/CD with TravisCL
+- Sign up for [TravisCL](https://travis-ci.com) and connect your Github application repository to TrivisCL.
+- Add `.travis.yml` file to the root of the application.
+- Copy and paste the following code into your `.travis.yml` file:
 ```
-***
+language: minimal
+
+services: docker
+
+env:
+  - DOCKER_COMPOSE_VERSION=1.23.2
+
+before_install:
+  - docker -v && docker-compose -v
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+  - chmod +x ./kubectl
+  - sudo mv ./kubectl /usr/local/bin/kubectl
+
+install:
+  - docker-compose -f udacity-c3-deployment/docker/docker-compose-build.yaml build --parallel 
+```  
+- Add your environment variables to the project repository in [TravisCL](https://travis-ci.com) by selecting the setting option.
+
+- Commit and Push your changes to trigger a Travis CI build.
+> Travis only runs builds on the commits you push after you’ve added a `.travis.yml` file.
